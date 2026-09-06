@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd frontend/cinematic-ai && npm install && npm run build",
+  "outputDirectory": "frontend/cinematic-ai/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

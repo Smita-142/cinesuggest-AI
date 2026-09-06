@@ -1,6 +1,7 @@
 import "./Login.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
+import { API_BASE_URL } from "../config/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/auth/login",
+        `${API_BASE_URL}/auth/login`,
         {
           method: "POST",
 

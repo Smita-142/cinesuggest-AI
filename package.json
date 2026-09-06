@@ -1,0 +1,8 @@
+{
+  "name": "cinematch-ai-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend/cinematic-ai && npm install && npm run build"
+  }
+}

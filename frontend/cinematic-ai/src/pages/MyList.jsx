@@ -1,6 +1,7 @@
 import "./MyList.css";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 
 function MyList() {
   const [movies, setMovies] = useState([]);
@@ -21,7 +22,7 @@ function MyList() {
         }
 
         const response = await fetch(
-          `http://127.0.0.1:8000/favorites/user/${userId}`
+          `${API_BASE_URL}/favorites/user/${userId}`
         );
 
         const data = await response.json();
@@ -65,7 +66,7 @@ function MyList() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/favorites/${userId}/${movieId}`,
+        `${API_BASE_URL}/favorites/${userId}/${movieId}`,
         {
           method: "DELETE"
         }

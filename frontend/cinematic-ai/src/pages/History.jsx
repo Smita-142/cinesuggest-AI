@@ -1,6 +1,7 @@
 import "./History.css";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 
 function History() {
 
@@ -32,7 +33,7 @@ function History() {
 
 
         const response = await fetch(
-          `http://127.0.0.1:8000/watch-history/user/${userId}`
+          `${API_BASE_URL}/watch-history/user/${userId}`
         );
 
 
@@ -111,7 +112,7 @@ function History() {
 
       const response = await fetch(
 
-        `http://127.0.0.1:8000/watch-history/${userId}/${movieId}`,
+        `${API_BASE_URL}/watch-history/${userId}/${movieId}`,
 
         {
           method: "DELETE"

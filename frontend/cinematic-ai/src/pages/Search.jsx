@@ -3,6 +3,7 @@ import "./Search.css";
 import { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 
 
 function Search() {
@@ -40,7 +41,7 @@ function Search() {
         // ----------------------------------------------
 
         let url =
-          "http://127.0.0.1:8000/movies/";
+          `${API_BASE_URL}/movies/`;
 
 
         // ----------------------------------------------
@@ -50,7 +51,7 @@ function Search() {
         if (query.trim() !== "") {
 
           url =
-            `http://127.0.0.1:8000/movies/search?title=${encodeURIComponent(
+            `${API_BASE_URL}/movies/search?title=${encodeURIComponent(
               query.trim()
             )}`;
 

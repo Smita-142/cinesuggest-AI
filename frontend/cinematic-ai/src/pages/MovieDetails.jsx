@@ -1,6 +1,7 @@
 import "./MovieDetails.css";
 import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 
 function MovieDetails() {
 
@@ -64,7 +65,7 @@ function MovieDetails() {
         if (isTMDBMovie) {
 
           url =
-            `http://127.0.0.1:8000/movies/tmdb/${tmdbId}`;
+            `${API_BASE_URL}/movies/tmdb/${tmdbId}`;
 
         }
 
@@ -75,7 +76,7 @@ function MovieDetails() {
         else {
 
           url =
-            `http://127.0.0.1:8000/movies/${id}`;
+            `${API_BASE_URL}/movies/${id}`;
 
         }
 
@@ -179,7 +180,7 @@ function MovieDetails() {
 
         const response =
           await fetch(
-            `http://127.0.0.1:8000/favorites/check/${userId}/${movie.movie_id}`
+            `${API_BASE_URL}/favorites/check/${userId}/${movie.movie_id}`
           );
 
 
@@ -260,7 +261,7 @@ function MovieDetails() {
 
         const response =
           await fetch(
-            `http://127.0.0.1:8000/ratings/user/${userId}`
+            `${API_BASE_URL}/ratings/user/${userId}`
           );
 
 
@@ -365,7 +366,7 @@ function MovieDetails() {
 
         const response =
           await fetch(
-            "http://127.0.0.1:8000/watch-history/",
+            `${API_BASE_URL}/watch-history/`,
             {
               method: "POST",
 
@@ -473,7 +474,7 @@ function MovieDetails() {
 
       const response =
         await fetch(
-          "http://127.0.0.1:8000/ratings/",
+          `${API_BASE_URL}/ratings/`,
           {
             method: "POST",
 
@@ -603,7 +604,7 @@ function MovieDetails() {
 
         const response =
           await fetch(
-            `http://127.0.0.1:8000/favorites/${userId}/${movie.movie_id}`,
+            `${API_BASE_URL}/favorites/${userId}/${movie.movie_id}`,
             {
               method: "DELETE"
             }
@@ -643,7 +644,7 @@ function MovieDetails() {
 
         const response =
           await fetch(
-            "http://127.0.0.1:8000/favorites/",
+            `${API_BASE_URL}/favorites/`,
             {
               method: "POST",
 

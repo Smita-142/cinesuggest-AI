@@ -1,6 +1,7 @@
 import "./Home.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../config/api";
 
 function Home() {
 
@@ -25,7 +26,7 @@ function Home() {
         setError("");
 
         const response = await fetch(
-          "http://127.0.0.1:8000/movies/top-rated"
+          `${API_BASE_URL}/movies/top-rated`
         );
 
         const data = await response.json();

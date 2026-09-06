@@ -1,6 +1,7 @@
 import "./Recommendations.css";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 
 function Recommendations() {
   const [recommendations, setRecommendations] = useState([]);
@@ -23,7 +24,7 @@ function Recommendations() {
         }
 
         const response = await fetch(
-          `http://127.0.0.1:8000/recommendations/${userId}?n=10`
+          `${API_BASE_URL}/recommendations/${userId}?n=10`
         );
 
         const data = await response.json();
