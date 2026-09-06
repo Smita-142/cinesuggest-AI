@@ -1,0 +1,39 @@
+# Python virtual environment
+backend/venv/
+**/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# React
+node_modules/
+dist/
+dist-ssr/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+*.env
+
+# Python virtual environment
+backend/venv/
+**/venv/
+
+# React
+node_modules/
+dist/
+dist-ssr/
