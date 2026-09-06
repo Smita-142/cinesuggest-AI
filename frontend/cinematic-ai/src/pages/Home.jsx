@@ -80,7 +80,7 @@ function Home() {
       <nav className="navbar">
 
         <div className="logo">
-          <span>🎬</span> Cinematic AI
+          <span>🎬</span> Cine Suggestion
         </div>
 
 
@@ -112,7 +112,7 @@ function Home() {
 
 
       <div className="profile">
-        <Link to="/Profile" className="profile-circle">
+        <Link to="/profile" className="profile-circle">
           A
         </Link>
       </div>
@@ -134,7 +134,7 @@ function Home() {
 
 
           <h1>
-            Welcome to <span>Cinematic AI</span>
+            Welcome to <span>Cine Suggestion</span>
           </h1>
 
 
@@ -266,6 +266,10 @@ function Home() {
                       "/images/default-movie.jpg"
                     }
                     alt={movie.title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/images/default-movie.jpg";
+                    }}
                   />
 
 

@@ -449,10 +449,9 @@ function Search() {
                         }
 
                         onError={(e) => {
-
+                          e.currentTarget.onerror = null;
                           e.currentTarget.src =
                             "/images/default-movie.jpg";
-
                         }}
 
                       />

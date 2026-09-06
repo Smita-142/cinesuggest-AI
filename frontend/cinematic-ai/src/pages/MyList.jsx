@@ -106,19 +106,26 @@ function MyList() {
   if (loading) {
     return (
       <div className="my-list-page">
-
+        <nav className="navbar">
+          <div className="logo">
+            <span>🎬</span> Cine Suggestion
+          </div>
+          <div className="nav-links">
+            <Link to="/home">Discover</Link>
+            <Link to="/recommendations">My Recommendations</Link>
+            <Link to="/my-list" className="active">My List</Link>
+            <Link to="/history">History</Link>
+          </div>
+          <Link to="/profile" className="profile-circle">A</Link>
+        </nav>
         <div className="empty-list">
-
           <h2>
             Loading My List...
           </h2>
-
           <p>
             Please wait while your saved movies are loading.
           </p>
-
         </div>
-
       </div>
     );
   }
@@ -129,26 +136,32 @@ function MyList() {
   if (error) {
     return (
       <div className="my-list-page">
-
+        <nav className="navbar">
+          <div className="logo">
+            <span>🎬</span> Cine Suggestion
+          </div>
+          <div className="nav-links">
+            <Link to="/home">Discover</Link>
+            <Link to="/recommendations">My Recommendations</Link>
+            <Link to="/my-list" className="active">My List</Link>
+            <Link to="/history">History</Link>
+          </div>
+          <Link to="/profile" className="profile-circle">A</Link>
+        </nav>
         <div className="empty-list">
-
           <div className="empty-icon">
             ♡
           </div>
-
           <h2>
             {error}
           </h2>
-
           <Link
             to="/home"
             className="browse-button"
           >
             Discover Movies
           </Link>
-
         </div>
-
       </div>
     );
   }
@@ -158,6 +171,44 @@ function MyList() {
 
   return (
     <div className="my-list-page">
+
+      {/* ================= NAVBAR ================= */}
+
+      <nav className="navbar">
+
+        <div className="logo">
+          <span>🎬</span> Cine Suggestion
+        </div>
+
+        <div className="nav-links">
+
+          <Link to="/home">
+            Discover
+          </Link>
+
+          <Link to="/recommendations">
+            My Recommendations
+          </Link>
+
+          <Link
+            to="/my-list"
+            className="active"
+          >
+            My List
+          </Link>
+
+          <Link to="/history">
+            History
+          </Link>
+
+        </div>
+
+        <Link to="/profile" className="profile-circle">
+          A
+        </Link>
+
+      </nav>
+
 
       {/* ================= HEADER ================= */}
 
@@ -204,6 +255,10 @@ function MyList() {
                       "/images/default-movie.jpg"
                     }
                     alt={movie.title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/images/default-movie.jpg";
+                    }}
                   />
 
                 </div>

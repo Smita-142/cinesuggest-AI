@@ -92,10 +92,9 @@ function Recommendations() {
 
         </div>
 
-        <div className="profile-circle">
+        <Link to="/profile" className="profile-circle">
           A
-        </div>
-
+        </Link>
       </nav>
 
 
@@ -246,6 +245,10 @@ function Recommendations() {
                         "/images/default-movie.jpg"
                       }
                       alt={movie.title}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/images/default-movie.jpg";
+                      }}
                     />
 
                     <span>

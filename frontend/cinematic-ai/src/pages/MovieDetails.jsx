@@ -1,5 +1,5 @@
 import "./MovieDetails.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 function MovieDetails() {
@@ -37,6 +37,8 @@ function MovieDetails() {
   const [hoverRating, setHoverRating] = useState(0);
   const [ratingLoading, setRatingLoading] = useState(false);
   const [ratingMessage, setRatingMessage] = useState("");
+
+  const hasLoggedHistoryRef = useRef(false);
 
 
   // ==================================================
@@ -331,15 +333,15 @@ function MovieDetails() {
 
   useEffect(() => {
 
-    if (!movie) {
+    if (!movie || !movie.movie_id) {
       return;
     }
 
-
-    if (!movie.movie_id) {
+    if (hasLoggedHistoryRef.current) {
       return;
     }
 
+    hasLoggedHistoryRef.current = true;
 
     const addToWatchHistory = async () => {
 
@@ -423,7 +425,7 @@ function MovieDetails() {
 
     addToWatchHistory();
 
-  }, [movie]);
+  }, [movie?.movie_id]);
 
 
   // ==================================================
@@ -873,8 +875,11 @@ function MovieDetails() {
               movie.poster_url ||
               "/images/default-movie.jpg"
             }
-
             alt={movie.title}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/images/default-movie.jpg";
+            }}
           />
 
         </div>
@@ -895,8 +900,11 @@ function MovieDetails() {
                 movie.poster_url ||
                 "/images/default-movie.jpg"
               }
-
               alt={movie.title}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/images/default-movie.jpg";
+              }}
             />
 
           </div>

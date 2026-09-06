@@ -68,7 +68,7 @@ function Login() {
 
         <div className="visual-overlay">
 
-          <h1>Cinematic AI</h1>
+          <h1>Cine Suggestion</h1>
 
           <p>
             Discover movies you'll love,

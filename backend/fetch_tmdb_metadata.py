@@ -26,7 +26,7 @@ if not TMDB_API_KEY:
 # 2. CONFIGURATION
 # ============================================================
 
-TMDB_BASE_URL = "https://api.themoviedb.org/3"
+TMDB_BASE_URL = os.getenv("TMDB_BASE_URL", "https://api.tmdb.org/3")
 
 # Small delay to avoid hammering TMDB
 REQUEST_DELAY = 0.25

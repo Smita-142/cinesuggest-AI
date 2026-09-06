@@ -27,13 +27,15 @@ router = APIRouter(
 
 
 # ============================================================
+# ============================================================
 # TMDB CONFIGURATION
 # ============================================================
 
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
-TMDB_BASE_URL = "https://api.themoviedb.org/3"
-
+# Primary and fallback URLs. api.tmdb.org avoids ISP/DNS blocks on broadband Wi-Fi.
+TMDB_PRIMARY_URL = os.getenv("TMDB_BASE_URL", "https://api.tmdb.org/3")
+TMDB_FALLBACK_URL = "https://api.themoviedb.org/3"
 
 tmdb_session = requests.Session()
 
@@ -41,6 +43,33 @@ tmdb_session.headers.update({
     "Accept": "application/json",
     "User-Agent": "CineMatch-AI/1.0"
 })
+
+
+def tmdb_request(endpoint: str, params: dict = None, timeout: int = 10):
+    """
+    Make a request to TMDB trying primary URL first, falling back if network fails.
+    """
+    if params is None:
+        params = {}
+
+    urls_to_try = [TMDB_PRIMARY_URL]
+    if TMDB_FALLBACK_URL != TMDB_PRIMARY_URL:
+        urls_to_try.append(TMDB_FALLBACK_URL)
+
+    last_error = None
+    for base_url in urls_to_try:
+        url = f"{base_url}{endpoint}"
+        try:
+            response = tmdb_session.get(url, params=params, timeout=timeout)
+            return response
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            last_error = e
+            print(f"Failed to connect to TMDB at {base_url}: {e}. Trying fallback if available...")
+            continue
+
+    if last_error:
+        raise last_error
+    raise Exception("Failed to connect to TMDB.")
 
 
 # ============================================================
@@ -108,8 +137,8 @@ def search_movies(
 
     try:
 
-        response = tmdb_session.get(
-            f"{TMDB_BASE_URL}/search/movie",
+        response = tmdb_request(
+            "/search/movie",
             params={
                 "api_key": TMDB_API_KEY,
                 "query": title,
@@ -302,8 +331,8 @@ def new_releases():
 
     try:
 
-        response = tmdb_session.get(
-            f"{TMDB_BASE_URL}/movie/now_playing",
+        response = tmdb_request(
+            "/movie/now_playing",
             params={
                 "api_key": TMDB_API_KEY,
                 "language": "en-US",
@@ -445,8 +474,8 @@ def get_tmdb_movie(
 
     try:
 
-        response = tmdb_session.get(
-            f"{TMDB_BASE_URL}/movie/{tmdb_id}",
+        response = tmdb_request(
+            f"/movie/{tmdb_id}",
             params={
                 "api_key": TMDB_API_KEY,
                 "language": "en-US"
@@ -454,62 +483,42 @@ def get_tmdb_movie(
             timeout=10
         )
 
-
         if response.status_code == 404:
-
             raise HTTPException(
                 status_code=404,
                 detail="Movie not found on TMDB."
             )
 
-
         if not response.ok:
-
             raise HTTPException(
                 status_code=response.status_code,
                 detail="Failed to fetch movie from TMDB."
             )
 
-
         data = response.json()
 
-
     except HTTPException:
-
         raise
 
-
     except Exception as error:
-
-        print(
-            "TMDB details error:",
-            error
-        )
-
+        print("TMDB details error:", error)
         raise HTTPException(
             status_code=500,
             detail="Unable to connect to TMDB."
         )
 
-
     # ========================================================
     # STEP 3: EXTRACT DATA
     # ========================================================
 
-    release_date = data.get(
-        "release_date"
-    )
-
-
+    release_date = data.get("release_date")
     release_year = None
 
-
-    if release_date:
-
-        release_year = int(
-            release_date[:4]
-        )
-
+    if release_date and len(str(release_date)) >= 4:
+        try:
+            release_year = int(str(release_date)[:4])
+        except (ValueError, TypeError):
+            release_year = None
 
     # --------------------------------------------------------
     # GENRES
@@ -517,164 +526,91 @@ def get_tmdb_movie(
 
     genres = " | ".join(
         genre["name"]
-        for genre in data.get(
-            "genres",
-            []
-        )
+        for genre in data.get("genres", [])
     )
-
 
     # --------------------------------------------------------
     # POSTER
     # --------------------------------------------------------
 
     poster_url = None
-
-
     if data.get("poster_path"):
-
         poster_url = (
             "https://image.tmdb.org/t/p/w500"
             + data["poster_path"]
         )
-
 
     # --------------------------------------------------------
     # BACKDROP
     # --------------------------------------------------------
 
     backdrop_url = None
-
-
     if data.get("backdrop_path"):
-
         backdrop_url = (
             "https://image.tmdb.org/t/p/w1280"
             + data["backdrop_path"]
         )
 
-
     # ========================================================
     # STEP 4: INSERT INTO MYSQL IF NOT EXISTS
     # ========================================================
 
+    movie_record = existing_movie
+
     if existing_movie:
-
-        print(
-            f"Movie already exists in MySQL: "
-            f"{existing_movie.movie_id}"
-        )
-
-        movie = existing_movie
-
-
+        print(f"Movie already exists in MySQL: {existing_movie.movie_id}")
     else:
+        print(f"Adding TMDB movie to MySQL: {data.get('title')}")
+        try:
+            from sqlalchemy import func
+            max_movie_id = db.query(func.max(Movie.movie_id)).scalar() or 0
+            new_movie_id = max_movie_id + 1
 
-        print(
-            f"Adding TMDB movie to MySQL: "
-            f"{data.get('title')}"
-        )
-
-
-        movie = Movie(
-
-            title=data.get(
-                "title"
-            ),
-
-            genres=genres,
-
-            release_year=release_year,
-
-            tmdb_id=tmdb_id,
-
-            poster_url=poster_url,
-
-            backdrop_url=backdrop_url,
-
-            overview=data.get(
-                "overview"
-            ),
-
-            runtime=data.get(
-                "runtime"
+            movie_record = Movie(
+                movie_id=new_movie_id,
+                title=data.get("title") or "Unknown Title",
+                genres=genres,
+                release_year=release_year,
+                tmdb_id=tmdb_id,
+                poster_url=poster_url,
+                backdrop_url=backdrop_url,
+                overview=data.get("overview"),
+                runtime=data.get("runtime")
             )
 
-        )
-
-
-        db.add(movie)
-
-        db.commit()
-
-        db.refresh(movie)
-
-
-        print(
-            f"TMDB movie added successfully. "
-            f"MySQL movie_id = {movie.movie_id}"
-        )
-
+            db.add(movie_record)
+            db.commit()
+            db.refresh(movie_record)
+            print(
+                f"TMDB movie added successfully. "
+                f"MySQL movie_id = {movie_record.movie_id}"
+            )
+        except Exception as db_err:
+            db.rollback()
+            print(f"Warning: Could not save TMDB movie to MySQL: {db_err}")
+            # Even if DB write fails, keep movie_record None and still return details to user!
+            movie_record = None
 
     # ========================================================
-    # STEP 5: RETURN MYSQL MOVIE ID
+    # STEP 5: RETURN MOVIE DETAILS
     # ========================================================
 
     return {
-
-        "movie_id":
-            movie.movie_id,
-
-        "tmdb_id":
-            movie.tmdb_id,
-
-        "title":
-            movie.title,
-
-        "original_title":
-            data.get(
-                "original_title"
-            ),
-
-        "genres":
-            movie.genres,
-
-        "release_date":
-            release_date,
-
-        "release_year":
-            movie.release_year,
-
-        "overview":
-            movie.overview,
-
-        "runtime":
-            movie.runtime,
-
-        "rating":
-            data.get(
-                "vote_average"
-            ),
-
-        "vote_count":
-            data.get(
-                "vote_count"
-            ),
-
-        "popularity":
-            data.get(
-                "popularity"
-            ),
-
-        "poster_url":
-            movie.poster_url,
-
-        "backdrop_url":
-            movie.backdrop_url,
-
-        "source":
-            "tmdb"
-
+        "movie_id": movie_record.movie_id if movie_record else None,
+        "tmdb_id": tmdb_id,
+        "title": data.get("title") or (movie_record.title if movie_record else "Unknown Title"),
+        "original_title": data.get("original_title"),
+        "genres": genres or (movie_record.genres if movie_record else ""),
+        "release_date": release_date,
+        "release_year": release_year,
+        "overview": data.get("overview"),
+        "runtime": data.get("runtime"),
+        "rating": data.get("vote_average"),
+        "vote_count": data.get("vote_count"),
+        "popularity": data.get("popularity"),
+        "poster_url": poster_url or (movie_record.poster_url if movie_record else None),
+        "backdrop_url": backdrop_url or (movie_record.backdrop_url if movie_record else None),
+        "source": "tmdb"
     }
 
 

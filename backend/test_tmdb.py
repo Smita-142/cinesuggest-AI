@@ -17,7 +17,7 @@ if not api_key:
 print("✅ API key loaded")
 print("Testing TMDB...")
 
-url = "https://api.themoviedb.org/3/movie/550"
+url = "https://api.tmdb.org/3/movie/550"
 
 params = {
     "api_key": api_key,

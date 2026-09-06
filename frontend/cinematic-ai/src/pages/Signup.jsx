@@ -65,7 +65,7 @@ function Signup() {
       <div className="signup-visual">
 
         <div className="signup-visual-overlay">
-          <h1>Cinematic AI</h1>
+          <h1>Cine Suggestion</h1>
 
           <p>
             Your next favorite movie
@@ -84,7 +84,7 @@ function Signup() {
           <h2>Create Account</h2>
 
           <p className="signup-subtitle">
-            Join Cinematic AI and discover movies made for you.
+            Join Cine Suggestion and discover movies made for you.
           </p>
 
 
